@@ -1,3 +1,17 @@
+/*
+*
+*OCTOSLAM
+*Octoslam is a ROS package which converts files in Polygon File Format(ply) to Binary Terrain Files(bt).
+*This software has been developed by using Octomap- An Efficient Probabilistic 3D Mapping Framework Based on Octrees as infrastructure.
+*http://octomap.github.com/.
+*
+*To find detailed information please visit following address
+*https://github.com/yng05/octoslam/wiki
+*
+*Bauhaus University Weimar 2016-17
+*
+*/
+
 #include <ros/ros.h>
 #include <pcl_ros/point_cloud.h>
 #include <pcl/point_types.h>

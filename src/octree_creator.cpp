@@ -1,3 +1,17 @@
+/*
+*
+*OCTOSLAM
+*Octoslam is a ROS package which converts files in Polygon File Format(ply) to Binary Terrain Files(bt).
+*This software has been developed by using Octomap- An Efficient Probabilistic 3D Mapping Framework Based on Octrees as infrastructure.
+*http://octomap.github.com/.
+*
+*To find detailed information please visit following address
+*https://github.com/yng05/octoslam/wiki
+*
+*Bauhaus University Weimar 2016-17
+*
+*/
+
 #include <string> 
 #include <sstream> 
 #include <octomap/octomap.h>
@@ -29,13 +43,10 @@ void print_query_info(point3d query, OcTreeNode* node) {
 }
 
 void grow_map(const PointCloud::ConstPtr& pCloud){
-  // insert point cloud data into point3d vertex by vertex 
-  // and add new vertexs onto octree
 
   BOOST_FOREACH (const pcl::PointXYZ& pt, pCloud->points){
     point3d endpoint ((float) pt.x, (float) pt.y, (float) pt.z);
-    tree.updateNode(endpoint, true); // integrate 'occupied' measurement
-    //printf ("\t(%f, %f, %f)\n", pt.x, pt.y, pt.z);
+    tree.updateNode(endpoint, true); me
   }
 
   
