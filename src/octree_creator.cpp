@@ -28,11 +28,17 @@
 #include <octomap_msgs/GetOctomap.h>
 #include <octomap_ros/conversions.h>
 
+#include <ctime>
+
 using namespace std;
 using namespace octomap;
 
 typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 OcTree tree (0.1);
+double durationTotalConversion = 0.0;
+double durationTotal = 0.0;
+std::clock_t startListening;
+bool isFirstListened = true;
 
 void print_query_info(point3d query, OcTreeNode* node) {
   if (node != NULL) {
@@ -46,7 +52,7 @@ void grow_map(const PointCloud::ConstPtr& pCloud){
 
   BOOST_FOREACH (const pcl::PointXYZ& pt, pCloud->points){
     point3d endpoint ((float) pt.x, (float) pt.y, (float) pt.z);
-    tree.updateNode(endpoint, true); me
+    tree.updateNode(endpoint, true);
   }
 
   
@@ -65,15 +71,37 @@ void grow_map(const PointCloud::ConstPtr& pCloud){
 
 void pointCloudCallback(const PointCloud::ConstPtr& msg)
 {
+  if(isFirstListened){
+    startListening = std::clock();
+    isFirstListened = false;
+  }
   printf ("Cloud: width = %d, height = %d\n", msg->width, msg->height);
   cout << msg->header.frame_id << endl;
+
+  std::clock_t start;
+  double duration;
+
+  start = std::clock();
   grow_map(msg);  
+  duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
+  durationTotalConversion += duration;
+
+  std::cout<<"duration: "<< duration <<" second"<<'\n';
 }
 
 void doneMsgCallback(const std_msgs::String::ConstPtr& msg)
 {
   cout << msg->data.c_str() << endl;
 
+  durationTotal = ( std::clock() - startListening) / (double) CLOCKS_PER_SEC;
+  isFirstListened = true;
+
+
+  cout << "Start: " << startListening / (double) CLOCKS_PER_SEC << " end" << std::clock() / (double) CLOCKS_PER_SEC << endl;
+
+  cout << "Total Duration: " << durationTotal << " second" << endl;
+  cout << "Total Duration for conversions: " << durationTotalConversion << " second" << endl;
+  
   octomap_msgs::Octomap bmap_msg;
   octomap_msgs::binaryMapToMsg(tree, bmap_msg);
   ros::NodeHandle n;
