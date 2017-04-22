@@ -142,6 +142,10 @@ add_executable(pc_reader_publisher src/pc_reader_publisher.cpp)
 target_link_libraries(pc_reader_publisher ${catkin_LIBRARIES})
 add_dependencies(pc_reader_publisher octoslam_pc_reader_publisher_cpp)
 
+add_executable(pc_listener_publisher src/pc_listener_publisher.cpp)
+target_link_libraries(pc_listener_publisher ${catkin_LIBRARIES})
+add_dependencies(pc_listener_publisher octoslam_pc_listener_publisher_cpp)
+
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(beginners_tutorial_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
