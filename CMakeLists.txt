@@ -138,6 +138,10 @@ add_executable(octree_creator src/octree_creator.cpp)
 target_link_libraries(octree_creator ${catkin_LIBRARIES})
 add_dependencies(octree_creator octoslam_octree_creator_cpp)
 
+add_executable(limitless_octree_creator src/limitless_octree_creator.cpp)
+target_link_libraries(limitless_octree_creator ${catkin_LIBRARIES})
+add_dependencies(limitless_octree_creator octoslam_limitless_octree_creator_cpp)
+
 add_executable(pc_reader_publisher src/pc_reader_publisher.cpp)
 target_link_libraries(pc_reader_publisher ${catkin_LIBRARIES})
 add_dependencies(pc_reader_publisher octoslam_pc_reader_publisher_cpp)
