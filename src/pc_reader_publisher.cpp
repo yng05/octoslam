@@ -27,8 +27,8 @@ int main(int argc, char** argv)
   std::vector<PointCloud> pCloudVector;
   ros::init (argc, argv, "pub_pcl");
   ros::NodeHandle nh;
-  ros::Publisher pub = nh.advertise<PointCloud> ("pointcloud", 1); 
-  ros::Publisher done_msg_pub = nh.advertise<std_msgs::String>("donemessage", 1000); 
+  ros::Publisher pub = nh.advertise<PointCloud> ("pointcloud", 100); 
+  ros::Publisher done_msg_pub = nh.advertise<std_msgs::String>("donemessage", 100); 
 
   PointCloudXRN pointCloud;
   char *path = NULL;

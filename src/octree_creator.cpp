@@ -106,7 +106,7 @@ void doneMsgCallback(const std_msgs::String::ConstPtr& msg)
   octomap_msgs::binaryMapToMsg(tree, bmap_msg);
   ros::NodeHandle n;
 
-  ros::Publisher octomap_publisher = n.advertise<octomap_msgs::Octomap>("octree",1);
+  ros::Publisher octomap_publisher = n.advertise<octomap_msgs::Octomap>("octree",100);
 
 
   ros::Rate loop_rate(10);
@@ -122,8 +122,8 @@ int main(int argc, char** argv) {
   cout << "listening point cloud publisher..." << endl;
   ros::init(argc, argv, "octree_creator");
   ros::NodeHandle n;
-  ros::Subscriber sub = n.subscribe("pointcloud", 1000, pointCloudCallback);
-  ros::Subscriber subDone = n.subscribe("donemessage", 1000, doneMsgCallback);
+  ros::Subscriber sub = n.subscribe("pointcloud", 100, pointCloudCallback);
+  ros::Subscriber subDone = n.subscribe("donemessage", 100, doneMsgCallback);
   ros::spin();
 
   return 0;

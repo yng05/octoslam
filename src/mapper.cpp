@@ -61,14 +61,14 @@ void octreeCallback(const octomap_msgs::Octomap::ConstPtr& octomap_msg)
 
   print_map(octree);
   cout << "printed..." << endl;
-  //sub.shutdown();
+  sub.shutdown();
 }
 
 int main(int argc, char** argv) {
   cout << "listening octree publisher..." << endl;
   ros::init(argc, argv, "mapper");
   ros::NodeHandle n;
-  sub = n.subscribe("octree", 1000, octreeCallback);
+  sub = n.subscribe("octree", 100, octreeCallback);
   ros::spin();
 
   return 0;

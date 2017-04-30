@@ -34,7 +34,7 @@ int countRecieved = 0;
 void pcReceiverCallback(const PointCloud2::ConstPtr& message)
 {
   ros::NodeHandle nh;
-  ros::Publisher pub = nh.advertise<PointCloud> ("pointcloud", 1); 
+  ros::Publisher pub = nh.advertise<PointCloud> ("pointcloud", 100); 
 
   PointCloud cloud;
   pcl::PCLPointCloud2 pcl_pc;
@@ -53,7 +53,7 @@ void pcReceiverCallback(const PointCloud2::ConstPtr& message)
   msg->points.push_back (pcl::PointXYZ(pc.points[j].x,pc.points[j].y,pc.points[j].z));
   }
 
-  ros::Rate loop_rate(20);
+  ros::Rate loop_rate(5);
   loop_rate.sleep();
   pub.publish(msg);
   ros::spinOnce();

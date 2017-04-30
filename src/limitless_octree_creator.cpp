@@ -87,10 +87,10 @@ void sendOctomap()
   octomap_msgs::binaryMapToMsg(tree, bmap_msg);
   ros::NodeHandle n;
 
-  ros::Publisher octomap_publisher = n.advertise<octomap_msgs::Octomap>("octree",1);
+  ros::Publisher octomap_publisher = n.advertise<octomap_msgs::Octomap>("octree",100);
 
 
-  ros::Rate loop_rate(10);
+  ros::Rate loop_rate(5);
   while (ros::ok())
   {
     octomap_publisher.publish(bmap_msg);
@@ -118,8 +118,8 @@ void pointCloudCallback(const PointCloud::ConstPtr& msg)
   durationTotalConversion += duration;
 
   std::cout<<"duration: "<< duration <<" second"<<'\n';
-  
-  if(mapSize>20){
+  std::cout<<"size: "<< mapSize <<" parts"<<'\n';
+  if(mapSize>200){
     mapSize = 0;
     sendOctomap();
   }
@@ -129,7 +129,7 @@ int main(int argc, char** argv) {
   cout << "listening point cloud publisher..." << endl;
   ros::init(argc, argv, "octree_creator");
   ros::NodeHandle n; 
-  ros::Subscriber sub = n.subscribe("pointcloud", 1000, pointCloudCallback);
+  ros::Subscriber sub = n.subscribe("pointcloud", 100, pointCloudCallback);
   ros::spin();
 
   return 0;
