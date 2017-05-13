@@ -54,14 +54,13 @@ void print_map(OcTree* tree){
 
 void octreeCallback(const octomap_msgs::Octomap::ConstPtr& octomap_msg)
 {
-
   cout << "receiving..." << endl;
   octomap::AbstractOcTree* tree = octomap_msgs::msgToMap(*octomap_msg);
   octomap::OcTree* octree = dynamic_cast<octomap::OcTree*>(tree);
 
   print_map(octree);
   cout << "printed..." << endl;
-  //sub.shutdown();
+  sub.shutdown();
 }
 
 int main(int argc, char** argv) {

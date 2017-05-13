@@ -54,7 +54,6 @@ void print_map(OcTree* tree){
 
 void octreeCallback(const octomap_msgs::Octomap::ConstPtr& octomap_msg)
 {
-
   cout << "receiving..." << endl;
   octomap::AbstractOcTree* tree = octomap_msgs::msgToMap(*octomap_msg);
   octomap::OcTree* octree = dynamic_cast<octomap::OcTree*>(tree);
@@ -68,7 +67,7 @@ int main(int argc, char** argv) {
   cout << "listening octree publisher..." << endl;
   ros::init(argc, argv, "mapper");
   ros::NodeHandle n;
-  sub = n.subscribe("octree", 100, octreeCallback);
+  sub = n.subscribe("octree", 1000, octreeCallback);
   ros::spin();
 
   return 0;

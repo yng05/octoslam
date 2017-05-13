@@ -37,9 +37,11 @@ typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 OcTree tree (0.1);
 double durationTotalConversion = 0.0;
 double durationTotal = 0.0;
+double voxelSize = 0.1;
 std::clock_t startListening;
-bool isFirstListened = true;
+//bool isFirstListened = true;
 int mapSize = 0;
+int packageLength = 20;
 
 void print_query_info(point3d query, OcTreeNode* node) {
   if (node != NULL) {
@@ -68,6 +70,7 @@ void grow_map(const PointCloud::ConstPtr& pCloud){
   query = point3d(1.,1.,1.);
   result = tree.search (query);
   print_query_info(query, result);
+  
 }
 
 void sendOctomap()
@@ -83,11 +86,13 @@ void sendOctomap()
   cout << "Total Duration: " << durationTotal << " second" << endl;
   cout << "Total Duration for conversions: " << durationTotalConversion << " second" << endl;*/
   
+  tree.setResolution(voxelSize);
+  
   octomap_msgs::Octomap bmap_msg;
   octomap_msgs::binaryMapToMsg(tree, bmap_msg);
   ros::NodeHandle n;
 
-  ros::Publisher octomap_publisher = n.advertise<octomap_msgs::Octomap>("octree",100);
+  ros::Publisher octomap_publisher = n.advertise<octomap_msgs::Octomap>("octree",1000);
 
 
   ros::Rate loop_rate(5);
@@ -96,16 +101,15 @@ void sendOctomap()
     octomap_publisher.publish(bmap_msg);
     loop_rate.sleep();
   }
-
 }
 
 void pointCloudCallback(const PointCloud::ConstPtr& msg)
-{
-  mapSize++;
-  if(isFirstListened){
+{         
+ mapSize++;
+/*  if(isFirstListened){
     startListening = std::clock();
     isFirstListened = false;
-  }
+  }*/
   printf ("Cloud: width = %d, height = %d\n", msg->width, msg->height);
   cout << msg->header.frame_id << endl;
 
@@ -119,20 +123,30 @@ void pointCloudCallback(const PointCloud::ConstPtr& msg)
 
   std::cout<<"duration: "<< duration <<" second"<<'\n';
   std::cout<<"size: "<< mapSize <<" parts"<<'\n';
-  if(mapSize>200){
+  
+  if(mapSize>=packageLength){
     mapSize = 0;
     sendOctomap();
-  }
+  }    
 }
 
-int main(int argc, char** argv) {
-  cout << "listening point cloud publisher..." << endl;
+int main(int argc, char** argv) {  
+  std::cout<<"Voxel Size: "<< argv[1]<<'\n';  
+  std::cout<<"Length of Package Recording: "<< argv[2]<<'\n';
+  cout << "listening point cloud publisher..." << endl; 
+
+  std::stringstream ss;
+  std::string s = argv[1];
+
+  ss << s;
+  ss >> voxelSize;
+  
+  packageLength = atoi(argv[2]) * 3;
+  
   ros::init(argc, argv, "octree_creator");
   ros::NodeHandle n; 
-  ros::Subscriber sub = n.subscribe("pointcloud", 100, pointCloudCallback);
+  ros::Subscriber sub = n.subscribe("pointcloud", 1000, pointCloudCallback);
   ros::spin();
-
   return 0;
 
 }
-

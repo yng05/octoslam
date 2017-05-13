@@ -32,39 +32,81 @@ ros::Subscriber sub;
 int countRecieved = 0;
 
 void pcReceiverCallback(const PointCloud2::ConstPtr& message)
-{
-  ros::NodeHandle nh;
-  ros::Publisher pub = nh.advertise<PointCloud> ("pointcloud", 100); 
+{ 
+      ros::NodeHandle nh;
+      ros::Publisher pub = nh.advertise<PointCloud> ("pointcloud", 1000); 
+      std::vector<PointCloud> pCloudVector;
 
-  PointCloud cloud;
-  pcl::PCLPointCloud2 pcl_pc;
-  pcl_conversions::toPCL(*message, pcl_pc);
-  pcl::fromPCLPointCloud2(pcl_pc, cloud);
+      PointCloud cloud;
+      pcl::PCLPointCloud2 pcl_pc;
+      pcl_conversions::toPCL(*message, pcl_pc);
+      pcl::fromPCLPointCloud2(pcl_pc, cloud);
 
-  PointCloud pc = cloud;
+      PointCloud pointCloud = cloud;
 
-  PointCloud::Ptr msg (new PointCloud);
-  msg->header.frame_id = "frame_" + boost::lexical_cast<std::string>(countRecieved++);
+      int packSize = pointCloud.size() / 3;
+	  int count = 0;
 
-  msg->height = pc.height;
-  msg->width = pc.width;
+	  do{
+	      int currentCount = count;
+	      count += packSize;  
+	      if(count >= pointCloud.size()){
+	        count = pointCloud.size();
+	      }
+	      std::cout << currentCount << " to " << count << " is processing..." << std::endl;
 
-  for (int j=0; j < pc.size(); j++){
-  msg->points.push_back (pcl::PointXYZ(pc.points[j].x,pc.points[j].y,pc.points[j].z));
-  }
+	      PointCloud pc;
+	      for(int i=currentCount;i < count; i++){        
+	        pc.push_back(pcl::PointXYZ(pointCloud.points[i].x,pointCloud.points[i].y,pointCloud.points[i].z));
+	      }
 
-  ros::Rate loop_rate(5);
-  loop_rate.sleep();
-  pub.publish(msg);
-  ros::spinOnce();
-  std::cout << msg->header.frame_id << " package is sent" << std::endl;
+	      pCloudVector.push_back(pc);
+
+	  }while(count != pointCloud.size());
+
+	  
+	  for(int i=0; i < pCloudVector.size(); i++){
+	    PointCloud pc = pCloudVector[i];
+
+	    PointCloud::Ptr msg (new PointCloud);
+	    msg->header.frame_id = "frame_" + boost::lexical_cast<std::string>(countRecieved++) + "_" + boost::lexical_cast<std::string>(i);
+
+	    msg->height = pc.height;
+	    msg->width = pc.width;
+
+	    for (int j=0; j < pointCloud.size(); j++){
+	    msg->points.push_back (pcl::PointXYZ(pc.points[j].x,pc.points[j].y,pc.points[j].z));
+	    }
+
+	    ros::Rate loop_rate(20);
+	    loop_rate.sleep();
+	    pub.publish(msg);
+	    ros::spinOnce();
+	    std::cout << msg->header.frame_id << " package is sent" << std::endl;
+	  }
+/*
+      PointCloud::Ptr msg (new PointCloud);
+      msg->header.frame_id = "frame_" + boost::lexical_cast<std::string>(countRecieved++);
+
+      msg->height = pc.height;
+      msg->width = pc.width;
+
+      for (int j=0; j < pc.size(); j++){
+      msg->points.push_back (pcl::PointXYZ(pc.points[j].x,pc.points[j].y,pc.points[j].z));
+      }
+
+      ros::Rate loop_rate(10);
+      pub.publish(msg);
+      ros::spinOnce();
+      loop_rate.sleep();
+      std::cout << msg->header.frame_id << " package is sent" << std::endl;*/
 }
 
 int main(int argc, char** argv)
 {
-  ros::init (argc, argv, "pub_pcls");
-  cout << "listening point cloud publisher..." << endl;
-  ros::NodeHandle n;
-  sub = n.subscribe("orb_slam/point_cloud", 100, pcReceiverCallback);
-  ros::spin();
+      ros::init (argc, argv, "pub_pcls");
+      cout << "listening point cloud publisher..." << endl;
+      ros::NodeHandle n;
+      sub = n.subscribe("orb_slam/point_cloud", 1000, pcReceiverCallback);
+      ros::spin();
 }
