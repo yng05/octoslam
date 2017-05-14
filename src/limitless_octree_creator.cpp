@@ -39,7 +39,6 @@ double durationTotalConversion = 0.0;
 double durationTotal = 0.0;
 double voxelSize = 0.1;
 std::clock_t startListening;
-//bool isFirstListened = true;
 int mapSize = 0;
 int packageLength = 20;
 
@@ -74,18 +73,7 @@ void grow_map(const PointCloud::ConstPtr& pCloud){
 }
 
 void sendOctomap()
-{
-  /*cout << msg->data.c_str() << endl;
-
-  durationTotal = ( std::clock() - startListening) / (double) CLOCKS_PER_SEC;
-  isFirstListened = true;
-
-
-  cout << "Start: " << startListening / (double) CLOCKS_PER_SEC << " end" << std::clock() / (double) CLOCKS_PER_SEC << endl;
-
-  cout << "Total Duration: " << durationTotal << " second" << endl;
-  cout << "Total Duration for conversions: " << durationTotalConversion << " second" << endl;*/
-  
+{  
   tree.setResolution(voxelSize);
   
   octomap_msgs::Octomap bmap_msg;
@@ -105,11 +93,8 @@ void sendOctomap()
 
 void pointCloudCallback(const PointCloud::ConstPtr& msg)
 {         
- mapSize++;
-/*  if(isFirstListened){
-    startListening = std::clock();
-    isFirstListened = false;
-  }*/
+  mapSize++;
+
   printf ("Cloud: width = %d, height = %d\n", msg->width, msg->height);
   cout << msg->header.frame_id << endl;
 
@@ -130,6 +115,12 @@ void pointCloudCallback(const PointCloud::ConstPtr& msg)
   }    
 }
 
+void doneMsgCallback(const std_msgs::String::ConstPtr& msg)
+{ 
+	cout << "received done message" << endl;
+    sendOctomap();
+}
+
 int main(int argc, char** argv) {  
   std::cout<<"Voxel Size: "<< argv[1]<<'\n';  
   std::cout<<"Length of Package Recording: "<< argv[2]<<'\n';
@@ -146,6 +137,7 @@ int main(int argc, char** argv) {
   ros::init(argc, argv, "octree_creator");
   ros::NodeHandle n; 
   ros::Subscriber sub = n.subscribe("pointcloud", 1000, pointCloudCallback);
+  ros::Subscriber subDone = n.subscribe("donemessage", 1000, doneMsgCallback);
   ros::spin();
   return 0;
 

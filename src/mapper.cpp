@@ -33,6 +33,7 @@ using namespace octomap;
 
 typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 ros::Subscriber sub;
+string filename = "result_tree";
 
 void print_query_info(point3d query, OcTreeNode* node) {
   if (node != NULL) {
@@ -46,9 +47,9 @@ void print_map(OcTree* tree){
   cout << endl;
   cout << "generating result map" << endl;  
   
-  tree->writeBinary("result_tree.bt");
-  cout << "wrote example file result_tree.bt" << endl << endl;
-  cout << "now you can use octovis to visualize: octovis result_tree.bt"  << endl;
+  tree->writeBinary(filename + ".bt");
+  cout << "wrote example file "<< filename <<".bt" << endl << endl;
+  cout << "now you can use octovis to visualize: octovis "<< filename <<".bt"  << endl;
   cout << "Hint: hit 'F'-key in viewer to see the freespace" << endl  << endl;  
 }
 
@@ -65,6 +66,7 @@ void octreeCallback(const octomap_msgs::Octomap::ConstPtr& octomap_msg)
 
 int main(int argc, char** argv) {
   cout << "listening octree publisher..." << endl;
+  filename = argv[1];
   ros::init(argc, argv, "mapper");
   ros::NodeHandle n;
   sub = n.subscribe("octree", 1000, octreeCallback);

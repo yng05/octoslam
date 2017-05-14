@@ -31,8 +31,15 @@ typedef sensor_msgs::PointCloud2 PointCloud2;
 ros::Subscriber sub;
 int countRecieved = 0;
 
+std::clock_t start;
+double duration;
+
+bool isFirstReceived = false;
+
 void pcReceiverCallback(const PointCloud2::ConstPtr& message)
 { 
+	  start = std::clock();
+	  isFirstReceived = true;
       ros::NodeHandle nh;
       ros::Publisher pub = nh.advertise<PointCloud> ("pointcloud", 1000); 
       std::vector<PointCloud> pCloudVector;
@@ -108,5 +115,31 @@ int main(int argc, char** argv)
       cout << "listening point cloud publisher..." << endl;
       ros::NodeHandle n;
       sub = n.subscribe("orb_slam/point_cloud", 1000, pcReceiverCallback);
-      ros::spin();
+
+
+      ros::Publisher done_msg_pub = n.advertise<std_msgs::String>("donemessage", 1000);     
+
+	  ros::Rate loop_rate(20);
+
+	  std_msgs::String msgDone;
+	   
+	  std::stringstream ss;
+	  ss << "done";
+	  msgDone.data = ss.str();
+
+      while(!isFirstReceived){
+      	start = std::clock();
+      	ros::spinOnce();
+      }
+      while((( std::clock() - start ) / (double) CLOCKS_PER_SEC) < 2){
+      	ros::spinOnce();
+      	cout << "." << endl;
+      }
+
+
+	  done_msg_pub.publish(msgDone);  
+	  ros::spinOnce();  
+	  loop_rate.sleep();
+
+	  cout << "done" << endl;
 }
