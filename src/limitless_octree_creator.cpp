@@ -40,7 +40,9 @@ double durationTotal = 0.0;
 double voxelSize = 0.1;
 std::clock_t startListening;
 int mapSize = 0;
+int fragmentSize = 0;
 int packageLength = 20;
+int fragmentLength = 1;
 
 void print_query_info(point3d query, OcTreeNode* node) {
   if (node != NULL) {
@@ -48,6 +50,26 @@ void print_query_info(point3d query, OcTreeNode* node) {
   }
   else 
     cout << "occupancy probability at " << query << ":\t is unknown" << endl;    
+}
+
+void sendOctomap(string name)
+{  
+  tree.setResolution(voxelSize);
+  
+  octomap_msgs::Octomap bmap_msg;
+  octomap_msgs::binaryMapToMsg(tree, bmap_msg);
+  ros::NodeHandle n;
+
+  ros::Publisher octomap_publisher = n.advertise<octomap_msgs::Octomap>(name,1000);
+
+
+  ros::Rate loop_rate(20);
+  while (ros::ok())
+  {
+    octomap_publisher.publish(bmap_msg);    
+    ros::spinOnce();
+    loop_rate.sleep();
+  }
 }
 
 void grow_map(const PointCloud::ConstPtr& pCloud){
@@ -72,28 +94,10 @@ void grow_map(const PointCloud::ConstPtr& pCloud){
   
 }
 
-void sendOctomap()
-{  
-  tree.setResolution(voxelSize);
-  
-  octomap_msgs::Octomap bmap_msg;
-  octomap_msgs::binaryMapToMsg(tree, bmap_msg);
-  ros::NodeHandle n;
-
-  ros::Publisher octomap_publisher = n.advertise<octomap_msgs::Octomap>("octree",1000);
-
-
-  ros::Rate loop_rate(5);
-  while (ros::ok())
-  {
-    octomap_publisher.publish(bmap_msg);
-    loop_rate.sleep();
-  }
-}
-
 void pointCloudCallback(const PointCloud::ConstPtr& msg)
 {         
   mapSize++;
+  fragmentSize++;
 
   printf ("Cloud: width = %d, height = %d\n", msg->width, msg->height);
   cout << msg->header.frame_id << endl;
@@ -111,14 +115,19 @@ void pointCloudCallback(const PointCloud::ConstPtr& msg)
   
   if(mapSize>=packageLength){
     mapSize = 0;
-    sendOctomap();
-  }    
+    sendOctomap("octree");
+  }
+
+    if(fragmentSize>=fragmentLength){
+    fragmentSize = 0;
+    sendOctomap("octreeFrg");
+  }       
 }
 
 void doneMsgCallback(const std_msgs::String::ConstPtr& msg)
 { 
 	cout << "received done message" << endl;
-    sendOctomap();
+    sendOctomap("octree");
 }
 
 int main(int argc, char** argv) {  
@@ -133,6 +142,7 @@ int main(int argc, char** argv) {
   ss >> voxelSize;
   
   packageLength = atoi(argv[2]) * 3;
+  fragmentLength = atoi(argv[3]);
   
   ros::init(argc, argv, "octree_creator");
   ros::NodeHandle n; 

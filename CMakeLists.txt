@@ -134,6 +134,10 @@ add_executable(mapper src/mapper.cpp)
 target_link_libraries(mapper ${catkin_LIBRARIES})
 add_dependencies(mapper octoslam_mapper_cpp)
 
+add_executable(map_projector src/map_projector.cpp)
+target_link_libraries(map_projector ${catkin_LIBRARIES})
+add_dependencies(map_projector octoslam_map_projector_cpp)
+
 add_executable(octree_creator src/octree_creator.cpp)
 target_link_libraries(octree_creator ${catkin_LIBRARIES})
 add_dependencies(octree_creator octoslam_octree_creator_cpp)
