@@ -36,6 +36,7 @@ using namespace octomap;
 
 typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 ros::Subscriber sub;
+int markerLimit = 20000;
 
 void print_query_info(point3d query, OcTreeNode* node) {
 	if (node != NULL) {
@@ -80,7 +81,7 @@ void octomap_publisher(OcTree* octree) {
 
 //========================== START Visualization with Markers =======================================
 
-	visualization_msgs::Marker marker[20000];
+	visualization_msgs::Marker marker[markerLimit];
 	uint32_t shape = visualization_msgs::Marker::CUBE;
 
 	for (octomap::OcTree::leaf_iterator it = octree->begin_leafs(),
@@ -125,13 +126,13 @@ void octomap_publisher(OcTree* octree) {
 
 	    marker_pub.publish(marker[idx]);
 
-		usleep(9000);
+		usleep(100);
 		idx = idx + 1;
 		//std::cout << "Node center: " << it.getCoordinate();
 		//std::cout << " value: " << it->getValue() << "\n";
 	}
 	cout << "Now visualize in rviz with marker and set Frame id = my_octree..." << endl;
-	marker_pub.shutdown();
+	
 
     // ========================= END Visualization with Markers ==========================================
 
@@ -230,11 +231,12 @@ void octreeCallback(const octomap_msgs::Octomap::ConstPtr& octomap_msg)
 	cout << "printed..." << endl;
 	//bt_file_publisher();
 	octomap_publisher(octree);
-	sub.shutdown();
 }
 
 int main(int argc, char** argv) {
 	cout << "listening octree publisher..." << endl;
+
+  	markerLimit = atoi(argv[1]);
 	ros::init(argc, argv, "map_projector");
 	ros::NodeHandle n;
 	sub = n.subscribe("octreeFrg", 1000, octreeCallback);
