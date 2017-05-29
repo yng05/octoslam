@@ -132,7 +132,8 @@ void doneMsgCallback(const std_msgs::String::ConstPtr& msg)
 
 int main(int argc, char** argv) {  
   std::cout<<"Voxel Size: "<< argv[1]<<'\n';  
-  std::cout<<"Length of Package Recording: "<< argv[2]<<'\n';
+  std::cout<<"Limit of the Packages Recording: "<< argv[2]<<'\n';
+  std::cout<<"Length of the single package: "<< argv[3]<<'\n';
   cout << "listening point cloud publisher..." << endl; 
 
   std::stringstream ss;
